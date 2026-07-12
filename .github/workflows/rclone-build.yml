@@ -1,0 +1,58 @@
+name: build rclone integration
+
+on:
+  push:
+    branches:
+      - fix/rclone-dependent-remotes-v1.1.0
+    paths:
+      - .github/workflows/rclone-build.yml
+      - rclone/**
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    defaults:
+      run:
+        working-directory: rclone
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+
+      - name: set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: rclone/go.mod
+          cache-dependency-path: rclone/go.sum
+
+      - name: test
+        run: go test ./...
+
+      - name: build
+        shell: bash
+        run: |
+          set -euo pipefail
+          ext=""
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            ext=".exe"
+          fi
+          go build -v -o "dist/rclone-importer${ext}" ./plugin/importer
+          go build -v -o "dist/rclone-exporter${ext}" ./plugin/exporter
+          go build -v -o "dist/rclone-storage${ext}" ./plugin/storage
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rclone-integration-${{ runner.os }}-${{ runner.arch }}
+          path: rclone/dist/*
+          if-no-files-found: error
