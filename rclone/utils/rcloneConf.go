@@ -11,10 +11,16 @@ import (
 
 func CleanPlakarRcloneConf(configMap map[string]string) {
 	delete(configMap, "location")
-	for k, v := range configMap {
+
+	keys := make([]string, 0, len(configMap))
+	for k := range configMap {
+		keys = append(keys, k)
+	}
+
+	for _, k := range keys {
 		if strings.HasPrefix(k, "rclone_") {
 			newKey := strings.TrimPrefix(k, "rclone_")
-			configMap[newKey] = v
+			configMap[newKey] = configMap[k]
 			delete(configMap, k)
 		}
 	}
