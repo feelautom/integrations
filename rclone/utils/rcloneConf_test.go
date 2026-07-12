@@ -12,8 +12,8 @@ func TestCleanPlakarRcloneConfNormalizesOptions(t *testing.T) {
 	configMap := map[string]string{
 		"location":            "rclone://",
 		"rclone_type":         "crypt",
-		"rclone_remote":       "gdrive:Workspace/Backups",
-		"rclone_config_file":  "C:\\Users\\Franck\\AppData\\Roaming\\rclone\\rclone.conf",
+		"rclone_remote":       "upstream:backups",
+		"rclone_config_file":  filepath.Join("custom", "rclone.conf"),
 		"rclone_password":     "redacted",
 		"rclone_config_extra": "kept",
 	}
@@ -22,8 +22,8 @@ func TestCleanPlakarRcloneConfNormalizesOptions(t *testing.T) {
 
 	expected := map[string]string{
 		"type":         "crypt",
-		"remote":       "gdrive:Workspace/Backups",
-		"config_file":  "C:\\Users\\Franck\\AppData\\Roaming\\rclone\\rclone.conf",
+		"remote":       "upstream:backups",
+		"config_file":  filepath.Join("custom", "rclone.conf"),
 		"password":     "redacted",
 		"config_extra": "kept",
 	}
